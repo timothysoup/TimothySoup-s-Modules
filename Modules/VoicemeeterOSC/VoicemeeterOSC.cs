@@ -32,6 +32,10 @@ public class VoicemeeterOSC : Module
         return 0f;
     }
 
+    /// <summary>
+    /// Get the Voicemeeter Type from Voicemeeter. Defaults to Banana on error.
+    /// </summary>
+    /// <returns>1 for Standard, 2 for Banana, 3 for Potato</returns>
     private static Voicemeeter.VoicemeeterType GetSafeVoicemeeterType()
     {
         if (Voicemeeter.GetVoicemeeterType(out Voicemeeter.VoicemeeterType type) < 0)
