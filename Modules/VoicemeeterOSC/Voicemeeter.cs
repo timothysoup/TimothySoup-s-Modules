@@ -27,6 +27,24 @@ internal static class Voicemeeter
         OutputBus = 3
     }
 
+    public enum VoicemeeterType
+    {
+        /// <summary>
+        /// Voicemeeter
+        /// </summary>
+        Standard = 1,
+
+        /// <summary>
+        /// Voicemeeter Banana
+        /// </summary>
+        Banana = 2,
+
+        /// <summary>
+        /// Voicemeeter Potato
+        /// </summary>
+        Potato = 3
+    }
+
     private const string Dll = "VoicemeeterRemote64.dll";
 
     [DllImport(Dll, EntryPoint = "VBVMR_Login", CallingConvention = CallingConvention.StdCall)]
@@ -37,4 +55,6 @@ internal static class Voicemeeter
 
     [DllImport(Dll, EntryPoint = "VBVMR_GetLevel", CallingConvention = CallingConvention.StdCall)]
     public static extern int GetLevel(VoicemeeterLevelType kind, int channelIndex, out float level);
+    [DllImport(Dll, EntryPoint = "VBVMR_GetVoicemeeterType", CallingConvention = CallingConvention.StdCall)]
+    public static extern int GetVoicemeeterType(out VoicemeeterType type);
 }

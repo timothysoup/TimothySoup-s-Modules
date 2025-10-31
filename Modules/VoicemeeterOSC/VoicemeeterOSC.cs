@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.VisualBasic.Logging;
+using System;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using VRCOSC.App.SDK.Modules;
@@ -30,6 +31,13 @@ public class VoicemeeterOSC : Module
             return level < 0f ? 0f : level;
 
         return 0f;
+    }
+
+    private static Voicemeeter.VoicemeeterType GetSafeVoicemeeterType()
+    {
+        if (Voicemeeter.GetVoicemeeterType(out Voicemeeter.VoicemeeterType type) < 0)
+            return Voicemeeter.VoicemeeterType.Banana;
+        return type;
     }
     #endregion
 
@@ -81,7 +89,6 @@ public class VoicemeeterOSC : Module
 
     enum VoicemeeterOSCSetting
     {
-        VoicemeeterEdition,
         InputLevelKind,
         PollRate,
         InstallLocation,
@@ -91,13 +98,6 @@ public class VoicemeeterOSC : Module
         SmoothRelease,
         SoloMode,
         SelectedChannel
-    }
-
-    enum VoicemeeterEdition
-    {
-        Standard,
-        Banana,
-        Potato
     }
 
     enum InputLevelKind
@@ -123,6 +123,7 @@ public class VoicemeeterOSC : Module
         None = -1, Phys1, Phys2, Phys3, Phys4, Phys5, Virt1, Virt2, Virt3, BusA1, BusA2, BusA3, BusA4, BusA5, BusB1, BusB2, BusB3
     }
 
+    Voicemeeter.VoicemeeterType VOICEMEETER_TYPE = Voicemeeter.VoicemeeterType.Banana;
     private int WAITING_TICKS = 0;
     private bool ENABLE_SMOOTHING = true;
     private float SMOOTH_ATTACK = 0.5f; // rise faster
@@ -138,7 +139,6 @@ public class VoicemeeterOSC : Module
 
     protected void CreateSettings()
     {
-        CreateDropdown(VoicemeeterOSCSetting.VoicemeeterEdition, "Voicemeeter Edition", "The Voicemeeter version/edition/distribution you are using.", VoicemeeterEdition.Banana);
         CreateDropdown(VoicemeeterOSCSetting.InputLevelKind, "Input Level Kind", "Which level to get from the strips. Default: PostMute", InputLevelKind.PostMute);
         CreateDropdown(VoicemeeterOSCSetting.PollRate, "Poll rate", "How fast to poll voicemeeter in Hz", PollRate._20Hz);
         CreateTextBox(VoicemeeterOSCSetting.InstallLocation, "Voicemeeter Installation Path", "The directory at which Voicemeeter is installed. Default: C:\\Program Files (x86)\\VB\\Voicemeeter", "C:\\Program Files (x86)\\VB\\Voicemeeter");
@@ -156,7 +156,7 @@ public class VoicemeeterOSC : Module
 
     protected void CreateSettingsGroups()
     {
-        CreateGroup("Voicemeeter Settings", VoicemeeterOSCSetting.VoicemeeterEdition, VoicemeeterOSCSetting.InputLevelKind, VoicemeeterOSCSetting.PollRate, VoicemeeterOSCSetting.InstallLocation);
+        CreateGroup("Voicemeeter Settings", VoicemeeterOSCSetting.InputLevelKind, VoicemeeterOSCSetting.PollRate, VoicemeeterOSCSetting.InstallLocation);
         CreateGroup("Solo Channel Settings", VoicemeeterOSCSetting.SoloMode, VoicemeeterOSCSetting.SelectedChannel);
         CreateGroup("Level Settings", VoicemeeterOSCSetting.AmplificationMultiplier, VoicemeeterOSCSetting.EnableSmoothing, VoicemeeterOSCSetting.SmoothAttack, VoicemeeterOSCSetting.SmoothRelease);
     }
@@ -187,6 +187,7 @@ public class VoicemeeterOSC : Module
 
     protected void ApplySettings()
     {
+        VOICEMEETER_TYPE = GetSafeVoicemeeterType();
         WAITING_TICKS = GetWaitingTicks();
         ENABLE_SMOOTHING = GetSettingValue<bool>(VoicemeeterOSCSetting.EnableSmoothing);
         SMOOTH_ATTACK = GetSettingValue<float>(VoicemeeterOSCSetting.SmoothAttack);
@@ -271,16 +272,16 @@ public class VoicemeeterOSC : Module
     /// </summary>
     private int GetPhysStripCount()
     {
-        switch (GetSettingValue<VoicemeeterEdition>(VoicemeeterOSCSetting.VoicemeeterEdition))
+        switch (VOICEMEETER_TYPE)
         {
-            case VoicemeeterEdition.Standard:
+            case Voicemeeter.VoicemeeterType.Standard:
                 return 2;
-            case VoicemeeterEdition.Banana:
+            case Voicemeeter.VoicemeeterType.Banana:
                 return 3;
-            case VoicemeeterEdition.Potato:
+            case Voicemeeter.VoicemeeterType.Potato:
                 return 5;
             default:
-                Log($"GetPhysStripCount Error: Unexpected Voicemeeter Edition");
+                Log($"GetPhysStripCount Error: Unexpected Voicemeeter Type");
                 return 0;
         }
     }
@@ -290,13 +291,13 @@ public class VoicemeeterOSC : Module
     /// </summary>
     private int GetVirtStripCount()
     {
-        switch (GetSettingValue<VoicemeeterEdition>(VoicemeeterOSCSetting.VoicemeeterEdition))
+        switch (VOICEMEETER_TYPE)
         {
-            case VoicemeeterEdition.Standard:
+            case Voicemeeter.VoicemeeterType.Standard:
                 return 1;
-            case VoicemeeterEdition.Banana:
+            case Voicemeeter.VoicemeeterType.Banana:
                 return 2;
-            case VoicemeeterEdition.Potato:
+            case Voicemeeter.VoicemeeterType.Potato:
                 return 3;
             default:
                 Log($"GetVirtStripCount Error: Unexpected Voicemeeter Edition");
@@ -309,13 +310,13 @@ public class VoicemeeterOSC : Module
     /// </summary>
     private int GetOutBusCount()
     {
-        switch (GetSettingValue<VoicemeeterEdition>(VoicemeeterOSCSetting.VoicemeeterEdition))
+        switch (VOICEMEETER_TYPE)
         {
-            case VoicemeeterEdition.Standard:
+            case Voicemeeter.VoicemeeterType.Standard:
                 return 1;
-            case VoicemeeterEdition.Banana:
+            case Voicemeeter.VoicemeeterType.Banana:
                 return 3;
-            case VoicemeeterEdition.Potato:
+            case Voicemeeter.VoicemeeterType.Potato:
                 return 5;
             default:
                 Log($"GetOutBusCount Error: Unexpected Voicemeeter Edition");
@@ -328,13 +329,13 @@ public class VoicemeeterOSC : Module
     /// </summary>
     private int GetInBusCount()
     {
-        switch (GetSettingValue<VoicemeeterEdition>(VoicemeeterOSCSetting.VoicemeeterEdition))
+        switch (VOICEMEETER_TYPE)
         {
-            case VoicemeeterEdition.Standard:
+            case Voicemeeter.VoicemeeterType.Standard:
                 return 1;
-            case VoicemeeterEdition.Banana:
+            case Voicemeeter.VoicemeeterType.Banana:
                 return 2;
-            case VoicemeeterEdition.Potato:
+            case Voicemeeter.VoicemeeterType.Potato:
                 return 3;
             default:
                 Log($"GetInBusCount Error: Unexpected Voicemeeter Edition");
