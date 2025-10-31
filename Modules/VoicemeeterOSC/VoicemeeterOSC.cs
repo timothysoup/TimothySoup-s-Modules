@@ -1,5 +1,4 @@
-﻿using Microsoft.VisualBasic.Logging;
-using System;
+﻿using System;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using VRCOSC.App.SDK.Modules;
