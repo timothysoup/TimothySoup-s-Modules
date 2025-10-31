@@ -65,7 +65,7 @@ public class VoicemeeterOSC : Module
 
     protected void RegisterParameters()
     {
-        RegisterParameter<float>(VoicemeeterOSCParameter.SelectedChannelLevel, "VRCOSC/Voicemeeter/Selected/Level", ParameterMode.Write, "Selected channel Level", "The loudness/level/volume of the selected channel");
+        RegisterParameter<float>(VoicemeeterOSCParameter.SelectedChannelLevel, "VRCOSC/Voicemeeter/Selected/Level", ParameterMode.Write, "Selected Channel Level", "The loudness/level/volume of the Selected Channel");
         RegisterParameter<float>(VoicemeeterOSCParameter.Strip0Level, "VRCOSC/Voicemeeter/Phys/1/Level", ParameterMode.Write, "Physical Strip 1 Level", "The loudness/level/volume of Physical Strip 1 in Voicemeeter");
         RegisterParameter<float>(VoicemeeterOSCParameter.Strip1Level, "VRCOSC/Voicemeeter/Phys/2/Level", ParameterMode.Write, "Physical Strip 2 Level", "The loudness/level/volume of Physical Strip 2 in Voicemeeter");
         RegisterParameter<float>(VoicemeeterOSCParameter.Strip2Level, "VRCOSC/Voicemeeter/Phys/3/Level", ParameterMode.Write, "Physical Strip 3 Level", "The loudness/level/volume of Physical Strip 3 in Voicemeeter");
